@@ -1,0 +1,12 @@
+archive:
+  litero:
+    verifyreads: false
+    mirrors:
+      MYNAME-DESKTOP: C:\Users\MyName\archived-photos
+    objectstore:
+      backend:
+        type: local
+        basedir: D:\archive\photos
+    index:
+      database: D:\archive\photos\archive.db
+
