@@ -4,7 +4,7 @@ from jupyter_aws.generic_templates import Arglist
 import sys
 
 DEBUG=False
-arc = Archive("litero", DEBUG)
+arc = Archive("openaudible", DEBUG)
 args = Arglist(sys.argv)
 app = args.shift()
 cmd = args.shift()

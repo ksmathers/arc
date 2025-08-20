@@ -47,7 +47,7 @@ class Archive:
             if os.path.isfile(f):
                 print(f)
                 entry = obj.put_file(archive_id, f)
-                dat.write_entry(archive_id, entry)
+                dat.write_entry(entry)
 
     def has_blob(self, hash):
         return self.index.has_hash(hash)

@@ -130,7 +130,11 @@ class ArchiveData:
         Args:
             newver (int): The new schema version to upgrade to.
         """
-        self.sqlscript(self.schema[newver])
+        script = self.schema[newver]
+        statements = script.strip().split(";")
+        for statement in statements:
+            self.sql(statement)
+        #self.sqlscript(script)
         self.schemaversion = newver
 
     def dbinit(self):
@@ -247,7 +251,7 @@ CREATE TABLE IF NOT EXISTS EntryHashes (
     seq INTEGER,
     hash TEXT,
     FOREIGN KEY(archive_id) REFERENCES Archive (id),
-    FOREIGN KEY(archive_entry_id) REFERENCES ArchiveEntry(id),
+    FOREIGN KEY(archive_entry_id) REFERENCES ArchiveEntry(id)
 );
 --CREATE UNIQUE INDEX (archive_entry, order) on EntryHashes;
 --CREATE UNIQUE INDEX (archive) on ArchiveEntry;
