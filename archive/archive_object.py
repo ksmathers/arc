@@ -36,6 +36,15 @@ class ArchiveObject:
         return path
 
     def put_blob(self, blob : bytes) -> str:
+        """
+        Stores a blob of data in the object store and return its hash.  If the blob already exists, it rewrites the existing blob.
+
+        Args:
+            blob (bytes): The blob of data to store.
+
+        Returns:
+            str: The hash of the stored blob.
+        """
         hash = base64.b16encode(md5(blob).digest()).decode('ASCII')
         o = self.backend.object(self.hashpath(hash))
         o.put_bytes(blob)
