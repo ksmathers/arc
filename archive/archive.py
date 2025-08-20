@@ -5,7 +5,7 @@ from .archive_entry import ArchiveEntry
 from .archive_index import ArchiveIndex
 import glob
 import os
-import sys
+import fnmatch
 
 from math import log, log10, floor
 def human_readable(value):
@@ -52,7 +52,7 @@ class Archive:
     def has_blob(self, hash):
         return self.index.has_hash(hash)
 
-    def restore(self):
+    def restore(self, pattern="*"):
         """Restore the contents of the archive.
 
         This method retrieves all entries from the archive index and restores them to the local filesystem.
@@ -66,6 +66,13 @@ class Archive:
         entries = self.index.entries
         for e in entries:
             lpath = entries[e]['libpath']
+            size = entries[e]['size']
+            if size == 0:
+                entry = ArchiveEntry(archive_id, lpath, [], 0, entries[e]['id'])
+                obj.get_file(entry)
+                continue
+            if pattern and not fnmatch.fnmatch(lpath, pattern):
+                continue
             entry_id = entries[e]['id']
             hashes = ihashes[entry_id]
             print(lpath)
@@ -88,3 +95,19 @@ class Archive:
             print(f"{human_readable(e['size']):>10s} {e['libpath']}")
         for lpath in directories:
             print(f"{'[dir]':>10s} {lpath}")
+    
+    def find(self, pattern):
+        """Find files in the archive matching a given pattern.
+
+        Args:
+            pattern (str): The pattern to match file paths against.
+
+        Side Effects:
+            Prints the matching file paths to standard output.
+        """
+        import fnmatch
+        entries = self.index.entries
+        for e in entries:
+            lpath = entries[e]['libpath']
+            if fnmatch.fnmatch(lpath, pattern):
+                print(lpath)

@@ -1,4 +1,4 @@
-import jupyter_aws as jaws
+from multicloud.autocontext import Context as MultiCloudContext
 from hashlib import md5
 import base64
 import os
@@ -27,7 +27,7 @@ class ArchiveObject:
         self.config = config
         if self.config.debug:
             print("ArchiveObject:objectstore:",config.objectstore)
-        self.backend = jaws.Context('objectstore', config.objectstore) # todo: replace with multicloud context
+        self.backend = MultiCloudContext('objectstore', config.objectstore) # todo: replace with multicloud context
         self.verify_reads = self.config.verifyreads
 
     @classmethod
@@ -80,6 +80,8 @@ class ArchiveObject:
         total_size = 0
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
+            if library_entry.size == 0:
+                return
             nparts = (library_entry.size // MAXBLOB)+1
             for part in range(0, nparts):
                 buf = self.get_blob(library_entry.hashlist[part])

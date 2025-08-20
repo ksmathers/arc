@@ -225,6 +225,7 @@ class ArchiveData:
         for row in entries:
             eid = row['id']
             index[eid] = row
+        #print(f"read_entries: {archive_name}({archive_id}) ->", len(index), "entries")
         return archive_id, ihashes, index
 
 
