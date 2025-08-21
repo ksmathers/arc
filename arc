@@ -15,6 +15,9 @@ elif cmd == "restore":
     pattern = args.shift("*")
     print("pattern:", pattern)
     arc.restore(pattern)
+elif cmd == "verify":
+    pattern = args.shift("*")
+    arc.verify(pattern)
 elif cmd == "dir":
     listdir = args.shift("")
     arc.dir(listdir)

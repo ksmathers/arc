@@ -70,6 +70,35 @@ class ArchiveObject:
                 h = self.put_blob(buf)
                 hashlist.append(h)
         return ArchiveEntry(archive_id, libpath, hashlist, f_size)
+    
+    def verify_file(self, archive_entry : ArchiveEntry):
+        basedir = os.path.join(self.config.localmirror, ".")[:-1]
+        path = archive_entry.libpath
+        if sys.platform.startswith("win"):
+            path = path.replace("/", "\\")
+        path = os.path.join(basedir, path)
+        total_size = 0
+        with open(path, "rb") as f:
+            if archive_entry.size == 0:
+                if os.path.isfile(path) and os.fstat(f.fileno()).st_size == 0:
+                    return True
+                print(f"Size mismatch {path} expected 0 got non-zero")
+                return False
+            nparts = (archive_entry.size // MAXBLOB)+1
+            for part in range(0, nparts):
+                buf = f.read(MAXBLOB)
+                if part < nparts-1:
+                    # catch out of order parts, shouldn't happen
+                    assert(len(buf) == MAXBLOB)
+                h = base64.b16encode(md5(buf).digest()).decode('ASCII')
+                if h != archive_entry.hashlist[part]:
+                    print(f"Hash mismatch {path} part {part} expected {archive_entry.hashlist[part]} got {h}")
+                    return False
+                total_size += len(buf)
+        if archive_entry.size != total_size:
+            print(f"Size mismatch {path} expected {archive_entry.size} got {total_size}")
+            return False
+        return True
 
     def get_file(self, library_entry : ArchiveEntry):
         basedir = os.path.join(self.config.localmirror, ".")[:-1]
@@ -91,6 +120,7 @@ class ArchiveObject:
                 f.write(buf)
                 total_size += len(buf)
         assert(library_entry.size == total_size)
+
 
 
 

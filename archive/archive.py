@@ -51,6 +51,34 @@ class Archive:
 
     def has_blob(self, hash):
         return self.index.has_hash(hash)
+    
+    def verify(self, pattern="*"):
+        """Verify the integrity of the local directory by checking the hashes of stored files.
+
+        This method retrieves all entries from the archive index and verifies that each blob's hash matches the expected value.
+
+        Args:
+            pattern (str): A pattern to filter which files to verify. Defaults to "*", which verifies all files.
+
+        Side Effects:
+            Prints the verification status of each file to standard output.
+        """
+        obj = self.objects
+        archive_id = self.index.archive_id
+        ihashes = self.index.ihashes
+        entries = self.index.entries
+        for e in entries:
+            lpath = entries[e]['libpath']
+            size = entries[e]['size']
+            fsize = os.fstat(lpath).st_size if os.path.isfile(lpath) else None
+            if pattern and not fnmatch.fnmatch(lpath, pattern):
+                continue
+
+            entry_id = entries[e]['id']
+            hashes = ihashes[entry_id]
+            ok = obj.verify_file(ArchiveEntry(archive_id, lpath, hashes, size, entry_id))
+            if ok:
+                print(f"OK:     {lpath} ({human_readable(size)})")
 
     def restore(self, pattern="*"):
         """Restore the contents of the archive.
